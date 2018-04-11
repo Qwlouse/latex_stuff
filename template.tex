@@ -1,0 +1,336 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Basic Packages %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\usepackage[utf8]{inputenc} % use utf8 as input encoding
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage[english]{babel} % improved hyphening and internationalization
+\usepackage{microtype}      % microtypography!!!
+
+
+%%% For figures and tables
+\usepackage{graphicx}
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{subcaption}     % new version of subfigures package
+\usepackage{rotating}       % sidewaysfigure
+\usepackage{wrapfig}        % figures wrapped in text
+\usepackage{algorithm2e}    % algorithms [linesnumbered]
+
+
+%%% Math stuff
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{amsmath}        % equations
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{bm}             % boldmath using \bm also for greek symbols
+
+
+%%% for custom macros
+\usepackage{xspace}         % a sort of conditonal space
+\usepackage{ifthen}         % provides conditonals with \ifthenelse{}{}{}
+\usepackage[table]{xcolor}	% for defining colors
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%% Citations and References %%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{bibentry}       % place bibliographic entries anywhere in the text
+\usepackage{url}            % simple URL typesetting
+
+\usepackage{varioref}    % \vref which can output "Figure 2 on the next page"
+\usepackage{hyperref}    % The order is important varioref > hyperref > cleveref > glossaries
+
+% Make the links dark blue like in ICML style
+\definecolor{mydarkblue}{rgb}{0,0.08,0.45}
+\hypersetup{ %
+    breaklinks=true,
+    unicode=true,
+    pdftitle={Binding Survey},
+    pdfauthor={Klaus Greff},
+    pdfsubject={},
+    pdfkeywords={Binding},
+    pdfborder=0 0 0,
+    pdfpagemode=UseNone,
+    colorlinks=true,
+    linkcolor=mydarkblue,
+    citecolor=mydarkblue,
+    filecolor=mydarkblue,
+    urlcolor=mydarkblue,
+    pdfview=FitH}
+\usepackage{cleveref}    % provide the versatile \cref
+\usepackage[all]{hypcap} % solves the problem that refs anchor to caption instead of the float beginning.
+
+% Capitalize section in \autoref
+\addto\extrasenglish{
+  \def\sectionautorefname{Section}%
+  \def\subsectionautorefname{Section}%
+  \def\subsubsectionautorefname{Section}%
+}
+
+% Capitalize \cref names
+\crefname{chapter}{Chapter}{Chapters}
+\crefname{section}{Section}{Sections}
+\crefname{subsection}{Section}{Sections}
+\crefname{subsubsection}{Section}{Sections}
+\crefname{figure}{Figure}{Figures}
+\crefname{table}{Table}{Tables}
+\crefname{subfigure}{Figure}{Figures}
+\crefname{equation}{Equation}{Equations}
+
+% Instructions:
+% usually you want to use \cref{LABEL}
+% \labelcref{} for getting just (number)  <== for example for equations
+% \cpageref{} for getting the page
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Acronyms %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% For Acronyms, Notation and Glossary
+% Contrary to common advice that hyperref should be loaded last, glossaries needs to be after hyperref
+\usepackage[hyperfirst=false,acronym]{glossaries}
+
+% Command to switch behavior depending on whether inside a float or not
+\makeatletter
+\newcommand\InFloat[2]{\ifnum\@floatpenalty<0\relax{#1}\else{#2}\fi}%
+\makeatother
+
+% helper command to create a glossary entry and corresponding shorthand commands
+% {name}{abbrev}{long}{optional citation/explanation}
+% For name=RNN this creates commands \RNN, \RNNs, \RNNlong, \RNNfirst
+\newcommand{\createAcronymCmdINTERNAL}[4]{%
+\newacronym[user1=#4]{#1}{#2}{#3}
+\expandafter\newcommand\csname #1\endcsname{\InFloat{\glsfirst{#1}}{\gls{#1}}\xspace}
+\expandafter\newcommand\csname #1s\endcsname{\InFloat{\glsfirstplural{#1}}{\glspl{#1}}\xspace}
+\expandafter\newcommand\csname #1long\endcsname{\glsdesc{#1}\xspace}
+\expandafter\newcommand\csname #1first\endcsname{\glslocalreset{#1}\gls{#1}\xspace}
+}
+
+% user-command to create acronyms.
+% \createAcronymCmd[name]{abbrev}{long}{citation/explanation}
+% works the same as \createAcronymCmdINTERNAL
+% but name is optional and defaults to abbrev
+\newcommand{\createAcronymCmd}[4][]{%
+\ifthenelse { \equal {#1} {} }  %if name not specified use abbrev as name
+    { \createAcronymCmdINTERNAL{#2}{#2}{#3}{#4} }   % if #1 == blank
+    { \createAcronymCmdINTERNAL{#1}{#2}{#3}{#4} }   % else (not blank)
+}
+
+
+%% A custom style that uses the user1 field for optional description/citation
+%% first use:  \textit{LONG}~(SHORT; user1)
+%%             \textit{LONG}~(SHORT)
+%% other uses: SHORT
+\newacronymstyle{optional-cite}% new style name
+{%
+\glsgenacfmt
+}%
+{%
+\renewcommand*{\firstacronymfont}[1]{\textit{##1}}
+% No case change, singular first use:
+\renewcommand*{\genacrfullformat}[2]{%
+\firstacronymfont{\glsentrylong{##1}}##2%
+~(\glsentryshort{##1}\ifglshasfield{user1}{##1}{;~\glsuseri{##1}}{})%
+}%
+% First letter upper case, singular first use:
+\renewcommand*{\Genacrfullformat}[2]{%
+\firstacronymfont{\Glsentrylong{##1}}##2%
+~(\Glsentryshort{##1}\ifglshasfield{user1}{##1}{;~\glsuseri{##1}}{})%
+}%
+% No case change, plural first use:
+\renewcommand*{\genplacrfullformat}[2]{%
+\firstacronymfont{\glsentrylongpl{##1}}##2%
+~(\glsentryshortpl{##1}\ifglshasfield{user1}{##1}{;~\glsuseri{##1}}{})%
+}%
+% First letter upper case, plural first use:
+\renewcommand*{\Genplacrfullformat}[2]{%
+\firstacronymfont{\Glsentrylongpl{##1}}##2%
+~(\Glsentryshortpl{##1}\ifglshasfield{user1}{##1}{;~\glsuseri{##1}}{})%
+}%
+}
+
+% Enable the custom acronym style
+\setacronymstyle{optional-cite}
+\glsdisablehyper  % disable hyperlinks to first occurence in acronyms
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Unicode Characters %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{textgreek}      % greek symbols in text (i.e. \textalpha}
+\usepackage[verbose]{newunicodechar} % for defining new unicode characters
+
+\newcommand{\textOrMath}[2]{{\ifmmode{#1}\else{#2}\fi}}
+
+% Sets
+\newunicodechar{ℕ}{{\ensuremath{\mathbb{N}}}}
+\newunicodechar{ℤ}{{\ensuremath{\mathbb{Z}}}}
+\newunicodechar{ℝ}{{\ensuremath{\mathbb{R}}}}
+\newunicodechar{ℂ}{{\ensuremath{\mathbb{C}}}}
+
+\newunicodechar{⊂}{\subset}
+\newunicodechar{∈}{\in}
+\newunicodechar{∪}{\cup}
+\newunicodechar{∩}{\cap}
+
+% logic
+\newunicodechar{∀}{\forall}
+\newunicodechar{∃}{\exists}
+\newunicodechar{¬}{\neg}
+\newunicodechar{∨}{\wedge}
+\newunicodechar{∧}{\vee}
+
+% Greek letters
+\newunicodechar{α}{{\textOrMath{\alpha}{\textalpha}}}
+\newunicodechar{β}{{\textOrMath{\beta}{\textbeta}}}
+\newunicodechar{γ}{{\textOrMath{\gamma}{\textgamma}}}
+\newunicodechar{δ}{{\textOrMath{\delta}{\textdelta}}}
+\newunicodechar{ε}{{\textOrMath{\epsilon}{\textepsilon}}}
+\newunicodechar{ζ}{{\textOrMath{\zeta}{\textzeta}}}
+\newunicodechar{η}{{\textOrMath{\eta}{\texteta}}}
+\newunicodechar{θ}{{\textOrMath{\theta}{\texttheta}}}
+\newunicodechar{ι}{{\textOrMath{\iota}{\textiota}}}
+\newunicodechar{κ}{{\textOrMath{\kappa}{\textkappa}}}
+\newunicodechar{λ}{{\textOrMath{\lambda}{\textlambda}}}
+\newunicodechar{μ}{{\textOrMath{\mu}{\textmugreek}}}
+\newunicodechar{ν}{{\textOrMath{\nu}{\textnu}}}
+\newunicodechar{ο}{{o}}
+\newunicodechar{π}{{\textOrMath{\pi}{\textpi}}}
+\newunicodechar{ρ}{{\textOrMath{\rho}{\textrho}}}
+\newunicodechar{σ}{{\textOrMath{\sigma}{\textsigma}}}
+\newunicodechar{τ}{{\textOrMath{\tau}{\texttau}}}
+\newunicodechar{υ}{{\textOrMath{\upsilon}{\textupsilon}}}
+\newunicodechar{φ}{{\textOrMath{\varphi}{\textvarphi}}}
+\newunicodechar{ϕ}{{\textOrMath{\phi}{\textphi}}}
+\newunicodechar{χ}{{\textOrMath{\chi}{\textchi}}}
+\newunicodechar{ψ}{{\textOrMath{\psi}{\textpsi}}}
+\newunicodechar{ω}{{\textOrMath{\omega}{\textomega}}}
+\newunicodechar{ξ}{{\textOrMath{\xi}{\textxi}}}
+\newunicodechar{ς}{{\textOrMath{\varsigma}{\textvarsigma}}}
+% Upper
+\newunicodechar{Ω}{{\textOrMath{\Omega}{\textOmega}}}
+\newunicodechar{Ξ}{{\textOrMath{\Xi}{\textXi}}}
+\newunicodechar{Π}{{\textOrMath{\Pi}{\textPi}}}
+\newunicodechar{Ψ}{{\textOrMath{\Psi}{\textPsi}}}
+\newunicodechar{Γ}{{\textOrMath{\Gamma}{\textGamma}}}
+\newunicodechar{Φ}{{\textOrMath{\Phi}{\textPhi}}}
+\newunicodechar{Σ}{{\textOrMath{\Sigma}{\textSigma}}}
+\newunicodechar{Δ}{{\textOrMath{\Delta}{\textDelta}}}
+\newunicodechar{Θ}{{\textOrMath{\Theta}{\textTheta}}}
+\newunicodechar{Λ}{{\textOrMath{\Lambda}{\textLambda}}}
+
+% Arrows
+\newunicodechar{⇐}{\Leftarrow}
+\newunicodechar{⇔}{\Leftrightarrow}
+\newunicodechar{⇒}{\Rightarrow}
+\newunicodechar{→}{\rightarrow}
+\newunicodechar{↦}{\mapsto}
+
+% Other
+\newunicodechar{√}{\srqt}
+\newunicodechar{ℵ}{{\aleph}}
+\newunicodechar{×}{\times}
+\newunicodechar{∂}{\partial}
+\newunicodechar{∘}{\circ}
+\newunicodechar{∇}{{\nabla}}
+\newunicodechar{⊥}{\perp}
+\newunicodechar{∡}{\measuredangle}
+\newunicodechar{∥}{\|}
+\newunicodechar{∞}{{\infty}}
+\newunicodechar{∝}{\propto}
+\newunicodechar{∅}{{\varnothing}}
+\newunicodechar{›}{\rangle}
+\newunicodechar{‹}{\langle}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Math Commands %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Command to make a BIG fraction in inline-math
+\newcommand\ddfrac[2]{\frac{\displaystyle #1}{\displaystyle #2}}
+
+% argmax operator
+\DeclareMathOperator*{\argmax}{\arg\!\max}
+
+\DeclareMathOperator*{\sigmoid}{sigmoid}
+\DeclareMathOperator*{\softplus}{softplus}
+
+% "defined as" operator (= with a small "def" ontop)
+\newcommand{\deq}{\stackrel{\text{\tiny def}}{=}}
+
+% a frac command with partials ∂1/∂2
+\newcommand{\deriv}[2]{\frac{\partial #1}{\partial #2}}
+
+\DeclareMathOperator*{\E}{\mathbb{E}}
+\DeclareMathOperator*{\Var}{Var}
+\DeclareMathOperator*{\Cov}{Cov}
+
+%%%%%%%%%%%%%%%%%%%% Combined List of Figures and Tables %%%%%%%%%%%%%%%%%%%%%%%
+% thanks to https://tex.stackexchange.com/a/258508/72180
+% can use \listoffigtab to create a combined list of figures and tables
+\usepackage[titles]{tocloft}
+\newlistof{figtab}{loft}{List of Figures and Tables}
+\makeatletter
+% Change the file extension of both lot and lof
+\def\ext@figure{loft}
+\def\ext@table{loft}
+% Store the original `\thefigure` and `\thetable`
+\let\tohe@thefigure\thefigure
+\let\tohe@thetable\thetable
+% Redefine them to contain a "dummy" `\tohe@list...`
+\def\thefigure{\tohe@listfig\tohe@thefigure}
+\def\thetable{\tohe@listtab\tohe@thetable}
+% Make the two dummy commands truly dummy
+\let\tohe@listfig\relax
+\let\tohe@listtab\relax
+% Store the original `\listoffigtab`
+\let\tohe@listoffigtab\listoffigtab
+% Redefine it in such a way that the dummy commands insert "Fig." or "Tab." respectively
+\def\listoffigtab{%
+  \begingroup
+  \def\tohe@listfig{Fig.~}
+  \def\tohe@listtab{Tab.~}
+  \tohe@listoffigtab
+  \endgroup
+}
+% Change \listoffigtab spacing
+\setlength{\cftfignumwidth}{5em}
+\setlength{\cfttabnumwidth}{5em}
+\setlength{\cftfigindent}{0pt}
+\setlength{\cfttabindent}{0pt}
+\makeatother
+
+
+%%%%%%%%%%%%%%%%%%%%%%  Draft stuff  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{lipsum}  % for fake text
+
+%%% for fixme notes
+\usepackage{fixme}
+\fxsetup{
+status=draft,
+author=,
+layout=pdfmargin, % inline, footnote, or pdfnote
+theme=color
+}
+
+% fix the marginparwidt
+%\usepackage[margin=1.3in, marginparwidth=1in, marginparsep=0.2in]{geometry}
+
+% use the right side for margin notes
+%\reversemarginpar
+
+% make font smaller in margin notes
+%\fxsetup{marginface=\linespread{0.9}\scriptsize}
+
+% register new author K -> \knote{}
+\FXRegisterAuthor{k}{ak}{K}
+
+% Linenumbers
+\usepackage[mathlines]{lineno}
+\usepackage{linenofix} % fix for usage with amsmath environments (e.g., align)
+\renewcommand{\linenumberfont}{\color{gray}\normalfont\footnotesize\sffamily}
+% needs a \linenumbers inside the document
+
+%%%%%%%%%%%%%%%%%%%%%%  Other Commands and Settings %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Command to remove some whitespace from itemize
+\newcommand{\noskip}{%
+\setlength\itemsep{3pt}%
+\setlength\parsep{0pt}%
+\setlength\partopsep{0pt}%
+\setlength\parskip{0pt}%
+\setlength\topskip{0pt}%
+}
+
+%% Enable starting chapters on the left side
+%\makeatletter
+%\@openrightfalse
+%\makeatother
